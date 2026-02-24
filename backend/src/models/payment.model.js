@@ -58,3 +58,5 @@ class Payment extends Model {}
     },
   );
 })();
+
+export {Payment};

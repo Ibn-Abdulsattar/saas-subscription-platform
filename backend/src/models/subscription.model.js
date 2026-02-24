@@ -68,3 +68,5 @@ class Subscription extends Model {}
     },
   );
 })();
+
+export {Subscription};

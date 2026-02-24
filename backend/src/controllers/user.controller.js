@@ -6,6 +6,10 @@ import { Op } from "sequelize";
 import wrapAsync from "../utils/wrapAsync.js";
 import ExpressError from "../utils/expressError.js";
 const isProd = process.env.NODE_ENV === "production";
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+import Stripe from "stripe";
+import assignFreePlan from "../utils/assignFreePlan.js";
+const stripe = new Stripe(stripeSecretKey);
 
 export const register = async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -14,12 +18,23 @@ export const register = async (req, res, next) => {
   if (user) {
     return next(new ExpressError("User already exists. Please sign in.", 400));
   } else {
-    user = await User.create({
+    const customer = await stripe.customers.create({
+      email: email,
+      name: username,
+      metadata: {
+        user_id: username.toString(),
+      },
+    });
+
+        user = await User.create({
       username,
       email,
       password,
+      stripe_customer_id : customer.id,
       avatar_url: "",
     });
+
+    assignFreePlan(user);
   }
 
   const subject = "Account created on SaaS 🔐";
@@ -32,7 +47,7 @@ We’re excited to have you join our community.
   await sendMail(user.email, subject, message);
 
   res.status(201).json({
-    message: "Account created successfully!",
+    message: "Account created successfully! Please login",
   });
 };
 
@@ -66,8 +81,8 @@ export const login = async (req, res, next) => {
   user.token_updated_at = new Date();
   await user.save();
 
-  const userData = user.toJSON(); 
-delete userData.password;
+  const userData = user.toJSON();
+  delete userData.password;
 
   res.cookie("token", user.token, {
     httpOnly: true,
@@ -77,7 +92,7 @@ delete userData.password;
 
   res.status(200).json({
     message: "Login successful",
-    user:userData,
+    user: userData,
   });
 };
 
@@ -171,11 +186,11 @@ export const clearUserTokens = wrapAsync(async () => {
   console.log(`Cleared tokens for ${affectedCount} users.`);
 });
 
-export const profile = async (req, res, next    ) => {
+export const profile = async (req, res, next) => {
   const { user } = req;
   const userData = User.findByPk(user.user_id, {
     attributes: ["user_id", "username", "email", "avatar_url", "role"],
   });
 
-    res.status(200).json({ user: userData });
+  res.status(200).json({ user: userData });
 };

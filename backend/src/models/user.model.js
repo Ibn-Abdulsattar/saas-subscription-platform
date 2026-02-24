@@ -39,7 +39,7 @@ class User extends Model {
       },
       stripe_customer_id:{
         type: DataTypes.STRING,
-        allowNull:true,
+        allowNull:false,
       },
       avatar_url: {
         type: DataTypes.STRING,

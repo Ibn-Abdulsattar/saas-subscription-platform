@@ -39,7 +39,18 @@ class SubscriptionPlan extends Model {};
           fields: ["stripe_price_id"],
           name: "idx_subscription_plans_stripe_price_id",
         },
+        {
+          unique: true,
+          fields: ["plan_type"],
+          name: "idx_subscription_plans_plan_type",
+        },
+        {
+          fields: ["billing_interval"],
+          name: "idx_subscription_plans_billing_interval"
+        }
       ]
      },
   );
 })();
+
+export {SubscriptionPlan};
