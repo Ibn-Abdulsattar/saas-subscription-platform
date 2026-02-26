@@ -41,12 +41,14 @@ export const disconnectDB = wrapAsync(async () => {
   console.log("Database connection closed.");
 });
 
+process.removeAllListeners("SIGINT");
 process.on('SIGINT', async()=>{
     await disconnectDB();
   console.log("Process Signal Interrupt terminated");
     process.exit(0);
 })
 
+process.removeAllListeners("SIGTERM");
 process.on("SIGTERM", async () => {
   await disconnectDB();
   console.log("Process Signal Terminate terminated");

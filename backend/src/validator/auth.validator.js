@@ -48,10 +48,11 @@ export const loginSchema = checkSchema({
   },
 });
 
-export const validateAuth = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return next(new ExpressError("Validation failed", 400, errors.array()));
-  }
-  next();
-};
+export const forgotSchema = checkSchema({
+  email: {
+    in: ["body"],
+    notEmpty: { errorMessage: "Email is required" },
+    isEmail: { errorMessage: "Please provide a valid email address" },
+    normalizeEmail: true,
+  },
+});

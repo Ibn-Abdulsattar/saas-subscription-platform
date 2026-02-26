@@ -1,6 +1,8 @@
 import {app} from "./app.js";
 import { connectDB } from "./config/db.js";
 import { startCronJobs, stopCronJobs } from "./services/cronJob.js";
+import { EventEmitter } from "events";
+EventEmitter.defaultMaxListeners = 20;
 
 const PORT = app.get('PORT');
 

@@ -6,17 +6,29 @@ import {
   logout,
   register,
   resetPassword,
-  google
+  google,
 } from "../controllers/auth.controller.js";
-import { loginSchema, registerSchema } from "../validator/auth.validator.js";
-import { validateAuth } from "../validator/auth.validator.js";
+import {
+  forgotSchema,
+  loginSchema,
+  registerSchema,
+} from "../validator/auth.validator.js";
 import auth from "../middlewares/auth.js";
+import { validateRequest } from "../middlewares/validationRequest.js";
 const router = Router();
 
-router.route("/login").post(loginSchema, validateAuth, wrapAsync(login));
-router.route("/register").post(registerSchema, validateAuth, wrapAsync(register));
-router.route("/logout").post( auth(["user", "admin", "manager"]), wrapAsync(logout));
-router.route("/forgot").post(wrapAsync(forgot));
+router
+  .route("/login")
+  .post(loginSchema, validateRequest("Auth"), wrapAsync(login));
+router
+  .route("/register")
+  .post(registerSchema, validateRequest("Auth"), wrapAsync(register));
+router
+  .route("/logout")
+  .post(auth(["user", "admin", "manager"]), wrapAsync(logout));
+router
+  .route("/forgot")
+  .post(forgotSchema, validateRequest("Auth"), wrapAsync(forgot));
 router.route("/reset-password").post(wrapAsync(resetPassword));
 router.post("/google", wrapAsync(google));
 
