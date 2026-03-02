@@ -56,12 +56,12 @@ export const googleAuth = createAsyncThunk(
   "auth/googleLogin",
   async (credentialResponse, { rejectWithValue }) => {
     try {
-      // credentialResponse contains the 'credential' string from Google
+      
       const response = await axios.post(`${API_URL}/auth/google`, {
         credential: credentialResponse.credential
       }, { withCredentials: true });
       
-      return response.data.user; // Adjust based on your API response
+      return response.data.user;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || "Google Login Failed");
     }

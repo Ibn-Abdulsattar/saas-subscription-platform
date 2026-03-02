@@ -31,7 +31,6 @@ export const createProject = createAsyncThunk(
   },
 );
 
-
 export const updateProject = createAsyncThunk(
   "projects/updateProject",
   async ({ id, data }, { rejectWithValue }) => {
