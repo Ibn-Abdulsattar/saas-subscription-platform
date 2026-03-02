@@ -41,7 +41,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-      console.log(user);
       setFormData({
         ...formData,
         name: user.username || '',

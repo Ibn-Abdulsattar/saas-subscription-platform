@@ -10,6 +10,8 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 import Stripe from "stripe";
 import assignFreePlan from "../utils/assignFreePlan.js";
 const stripe = new Stripe(stripeSecretKey);
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const register = async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -97,14 +99,17 @@ export const login = async (req, res, next) => {
 };
 
 export const logout = async (req, res, next) => {
-  const { user } = req;
-  if (!user) {
+  const user_id  = req.user.user_id;
+
+  const user = await User.findByPk(user_id);
+
+    if (!user) {
     return next(new ExpressError("Not authenticated", 401));
   }
-
-  user.token = null;
-  user.token_updated_at = null;
-  await user.save();
+  
+    user.token = null;
+    user.token_updated_at = null;
+    await user.save();
 
   res
     .clearCookie("token", {

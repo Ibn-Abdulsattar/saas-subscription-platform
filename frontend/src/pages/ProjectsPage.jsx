@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import {
   fetchProjects,
   createProject,
@@ -39,6 +41,7 @@ const ProjectsPage = () => {
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
+    pdfFile: null,
   });
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -50,9 +53,18 @@ const ProjectsPage = () => {
 
   const handleCreateProject = async () => {
     try {
-      await dispatch(createProject(newProject)).unwrap();
+      const formData = new FormData();
+
+      formData.append("title", newProject.title);
+      formData.append("description", newProject.description);
+
+      if (newProject.pdfFile) {
+        formData.append("media", newProject.pdfFile);
+      }
+
+      await dispatch(createProject(formData)).unwrap();
       setOpenDialog(false);
-      setNewProject({ title: "", description: "" });
+      setNewProject({ title: "", description: "", pdfFile: null });
       toast.success("Project created successfully");
     } catch (error) {
       console.log(error);
@@ -124,40 +136,48 @@ const ProjectsPage = () => {
         </Card>
       ) : (
         <Grid container spacing={3}>
-          {projects.map((project) => (
-            <Grid item xs={12} sm={6} md={4} key={project.id}>
-              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                <CardContent>
-                  <div className="flex justify-between items-start">
-                    <div
-                      className="flex-1"
-                      onClick={() => handleViewProject(project)}
-                    >
-                      <Typography variant="h6" gutterBottom>
-                        {project.title}
-                      </Typography>
-                      <Typography
-                        color="textSecondary"
-                        className="line-clamp-2"
-                      >
-                        {project.description || "No description"}
-                      </Typography>
-                      <div className="mt-4 text-sm text-gray-500">
-                        Created:{" "}
-                        {new Date(project.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleMenuOpen(e, project)}
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  </div>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+{projects.map((project) => (
+  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project.id}>
+    <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer flex flex-col">
+      <CardContent className="flex-1">
+        <div className="flex justify-between items-start">
+          <div className="flex-1" onClick={() => handleViewProject(project)}>
+            <Typography variant="h6" gutterBottom>
+              {project.title}
+            </Typography>
+            <Typography color="textSecondary" className="line-clamp-2 mb-3">
+              {project.description || "No description"}
+            </Typography>
+
+            {/* PDF Link Section */}
+            {project.pdf && (
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<PictureAsPdfIcon sx={{ color: '#d32f2f' }} />}
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  window.open(project.pdf, "_blank");
+                }}
+                sx={{ mb: 2, textTransform: 'none' }}
+              >
+                View Document
+              </Button>
+            )}
+
+            <div className="mt-4 text-sm text-gray-500">
+              Created: {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}
+            </div>
+          </div>
+          <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)}>
+            <MoreVertIcon />
+          </IconButton>
+        </div>
+      </CardContent>
+    </Card>
+  </Grid>
+))}
+
         </Grid>
       )}
 
@@ -192,10 +212,13 @@ const ProjectsPage = () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{textAlign: "center"}} >Create New Project</DialogTitle>
+        <DialogTitle sx={{ textAlign: "center" }}>
+          Create New Project
+        </DialogTitle>
         <DialogContent>
           <div className="space-y-4 pt-4">
-            <TextField sx={{pb:2}}
+            <TextField
+              sx={{ pb: 2 }}
               label="Project title"
               fullWidth
               value={newProject.title}
@@ -214,6 +237,33 @@ const ProjectsPage = () => {
                 setNewProject({ ...newProject, description: e.target.value })
               }
             />
+            {/* PDF Upload Field */}
+            <div className="flex flex-col space-y-2">
+              <Typography variant="caption" color="textSecondary">
+                Project Document (PDF)
+              </Typography>
+              <Button
+                variant="outlined"
+                component="label"
+                fullWidth
+                startIcon={<PhotoCameraIcon />}
+              >
+                {newProject.pdfFile ? newProject.pdfFile.name : "Upload PDF"}
+                <input
+                  type="file"
+                  hidden
+                  accept="application/pdf"
+                  onChange={(e) =>
+                    setNewProject({ ...newProject, pdfFile: e.target.files[0] })
+                  }
+                />
+              </Button>
+              {newProject.pdfFile && (
+                <Typography variant="caption" color="success.main">
+                  Selected: {newProject.pdfFile.name}
+                </Typography>
+              )}
+            </div>
           </div>
         </DialogContent>
         <DialogActions>

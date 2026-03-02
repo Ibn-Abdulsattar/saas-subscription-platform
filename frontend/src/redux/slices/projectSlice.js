@@ -19,23 +19,18 @@ export const fetchProjects = createAsyncThunk(
 
 export const createProject = createAsyncThunk(
   "projects/createProject",
-  async (projectData, { rejectWithValue }) => {
+  async (formData, { rejectWithValue }) => {
     try {
-      const formData = new FormData();
-      Object.keys(projectData).forEach((key) => {
-        if (projectData[key]) formData.append(key, projectData[key]);
-      });
-
       const response = await axios.post(`${API_URL}/project`, formData, {
         withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.error);
+      return rejectWithValue(error.response?.data?.error || "Upload failed");
     }
   },
 );
+
 
 export const updateProject = createAsyncThunk(
   "projects/updateProject",

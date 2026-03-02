@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, clearError } from '../../redux/slices/authSlice';
 import { toast } from 'react-toastify';
+import CustomGoogleButton from './CustomGoogleButton';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -104,6 +105,7 @@ const LoginPage = () => {
             </button>
           </div>
         </form>
+          <CustomGoogleButton navigate={navigate} />
       </div>
     </div>
   );
