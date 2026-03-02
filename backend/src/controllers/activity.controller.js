@@ -1,9 +1,10 @@
 import { Activity } from "../models/activity.model.js";
+import { User } from "../models/user.model.js";
 
 export const getRecentActivities = async (req, res) => {
     const activities = await Activity.findAll({
-      include: ["User"],
-      order: [["createdAt", "DESC"]],
+       include: [{ model: User, as: "user" }],
+      order: [["created_at", "DESC"]],
       limit: 20
     });
 

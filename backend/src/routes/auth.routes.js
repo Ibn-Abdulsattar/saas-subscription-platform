@@ -7,6 +7,7 @@ import {
   register,
   resetPassword,
   google,
+  changePassword,
 } from "../controllers/auth.controller.js";
 import {
   forgotSchema,
@@ -30,6 +31,9 @@ router
   .route("/forgot")
   .post(forgotSchema, validateRequest("Auth"), wrapAsync(forgot));
 router.route("/reset-password").post(wrapAsync(resetPassword));
+router
+  .route("/change-password")
+  .post(auth(["user", "admin", "manager"]), wrapAsync(changePassword));
 router.post("/google", wrapAsync(google));
 
 export default router;

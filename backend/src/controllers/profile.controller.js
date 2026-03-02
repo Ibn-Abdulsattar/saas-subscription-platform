@@ -4,8 +4,8 @@ import ExpressError from "../utils/expressError.js";
 
 export const profile = async (req, res, next) => {
   const { user } = req;
-  const userData = User.findByPk(user.user_id, {
-    attributes: ["user_id", "username", "email", "avatar_url", "role"],
+  const userData = await User.findByPk(user.user_id, {
+    attributes: ["user_id", "username", "email", "avatar_url", "role","createdAt"],
   });
 
   res.status(200).json({ user: userData });
@@ -23,7 +23,6 @@ export const updateProfile = async (req, res, next) => {
       const result = await Cloudinary(file);
 
       avatar_url = result.secure_url;
-      console.log("avatar_url =", result.secure_url);
     } catch (err) {
       return next(new ExpressError("Image upload failed", 500));
     }

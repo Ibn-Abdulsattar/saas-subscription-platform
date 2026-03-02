@@ -44,10 +44,10 @@ export const updateProjectSchema = checkSchema({
     notEmpty: {
       errorMessage: "Project ID is required",
     },
-    isInt: {
-      errorMessage: "Project ID must be a valid integer",
+    isUUID: {
+      options: 4, // checks for UUIDv4
+      errorMessage: "Project ID must be a valid UUID",
     },
-    toInt: true,
   },
 
   title: {
@@ -88,9 +88,9 @@ export const deleteProjectSchema = checkSchema({
     notEmpty: {
       errorMessage: "Project ID is required",
     },
-    isInt: {
-      errorMessage: "Project ID must be a valid integer",
+    isUUID: {
+      options: 4, // checks for UUIDv4
+      errorMessage: "Project ID must be a valid UUID",
     },
-    toInt: true,
   },
 });

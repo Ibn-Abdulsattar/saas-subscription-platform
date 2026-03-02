@@ -171,6 +171,26 @@ export const resetPassword = async (req, res, next) => {
   res.status(200).json({ message: "Password reset successfully" });
 };
 
+export const changePassword = async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.user_id; 
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    return next(new ExpressError("Incorrect current password", 400));
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.status(200).json({ message: "Password updated successfully" });
+};
+
 export const clearUserTokens = wrapAsync(async () => {
   const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 

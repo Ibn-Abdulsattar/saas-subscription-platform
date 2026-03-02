@@ -5,7 +5,7 @@ import { Op } from "sequelize";
 import { Project } from "../models/project.model.js";
 
 export const getSummaryStats = async (req, res, next) => {
-  const totalUsers = await User.count({ role: "user" });
+  const totalUsers = await User.count({ where: { role: "user" } });
 
   const activeUsers = await User.count({
     where: {
@@ -17,24 +17,20 @@ export const getSummaryStats = async (req, res, next) => {
 
   const totalTasks = await Task.count();
 
-  const compeletedTask = await Task.count({
-    where: { status: "compeleted" },
+  const completedTasks = await Task.count({
+    where: { status: "completed" },
   });
 
-  const totalRevenu = await Payment.sum({
+  const totalRevenu = await Payment.sum("amount", {
     where: { payment_status: "paid" },
   });
 
-  return res
-    .status(200)
-    .json({
-      totalUsers,
-      activeUsers,
-      totalProjects,
-      totalTasks,
-      compeletedTask,
-      totalRevenu,
-    });
+  return res.status(200).json({
+    totalUsers,
+    activeUsers,
+    totalProjects,
+    totalTasks,
+    completedTasks,
+    totalRevenu,
+  });
 };
-
-

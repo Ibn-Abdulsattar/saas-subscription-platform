@@ -16,7 +16,7 @@ const auth = (allowRoles) => (req, res, next) => {
     return next(
       new ExpressError(
         "Authentication failed: No token provided",
-        StatusCodes.UNAUTHORIZED,
+        401,
       ),
     );
   }

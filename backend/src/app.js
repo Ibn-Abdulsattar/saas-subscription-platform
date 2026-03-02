@@ -86,7 +86,7 @@ app.use((error, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     error: message || "Internal Server Error",
-    // errors: errors,
+    errors: errors,
   });
 });
 

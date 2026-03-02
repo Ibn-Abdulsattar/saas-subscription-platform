@@ -4,6 +4,7 @@ import {
   paymentHistory,
   subscriptionStatus,
   stripeCheckoutSession,
+  cancelSubscription,
 } from "../controllers/payment.controller.js";
 import auth from "../middlewares/auth.js";
 import { stripeCheckoutSessionSchema } from "../validator/payment.validator.js";
@@ -22,5 +23,7 @@ router
     validateRequest("Payment"),
     wrapAsync(stripeCheckoutSession),
   );
+
+  router.post("/cancel-subscription", auth(["user"]), wrapAsync(cancelSubscription));
 
 export default router;

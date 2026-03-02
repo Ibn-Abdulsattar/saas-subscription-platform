@@ -1,6 +1,6 @@
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-const success_url = `${process.env.FRONTEND_URL}/success`;
-const cancel_url = `${process.env.FRONTEND_URL}/cancel`;
+const success_url = `${process.env.FRONTEND_URL}/billing`;
+const cancel_url = `${process.env.FRONTEND_URL}/billing`;
 import Stripe from "stripe";
 const stripe = new Stripe(stripeSecretKey);
 import { Payment } from "../models/payment.model.js";
@@ -13,7 +13,9 @@ export const stripeCheckoutSession = async (req, res, next) => {
   const { planType, billingInterval } = req.body;
 
   if (!planType || !billingInterval) {
-    return next(new ExpressError("planType and billingInterval are required", 400));
+    return next(
+      new ExpressError("planType and billingInterval are required", 400),
+    );
   }
 
   const user = await User.findByPk(req.user.user_id);
@@ -96,7 +98,7 @@ export const stripeWebhook = async (req, res, next) => {
 
     case "invoice.payment_succeeded": {
       const invoice = event.data.object;
-      console.log(invoice);
+      const invoiceUrl = invoice.hosted_invoice_url;
       const subscriptionId =
         invoice.subscription ??
         invoice.parent?.subscription_details?.subscription;
@@ -106,13 +108,21 @@ export const stripeWebhook = async (req, res, next) => {
         break;
       }
 
-      const subscription = await Subscription.findOne({
+      let subscription = await Subscription.findOne({
         where: { stripe_subscription_id: subscriptionId },
       });
 
-        if (!subscription) {
-        console.log("Subscription not in DB yet. Creating a temporary record or skipping...");
-        // Instead of breaking, we send a 202 to tell Stripe "Try again in a few seconds"
+      if (!subscription) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        subscription = await Subscription.findOne({
+          where: { stripe_subscription_id: subscriptionId },
+        });
+      }
+
+      if (!subscription) {
+        console.log(
+          "Subscription not in DB yet. Creating a temporary record or skipping...",
+        );
         return res.status(202).json({ message: "Processing dependency..." });
       }
 
@@ -123,6 +133,7 @@ export const stripeWebhook = async (req, res, next) => {
         currency: invoice.currency,
         payment_status: "paid",
         paid_at: new Date(invoice.status_transitions.paid_at * 1000),
+        invoice_url: invoiceUrl,
       });
 
       await Subscription.update(
@@ -138,7 +149,7 @@ export const stripeWebhook = async (req, res, next) => {
 
     case "invoice.payment_failed": {
       const invoice = event.data.object;
-            const subscriptionId =
+      const subscriptionId =
         invoice.subscription ??
         invoice.parent?.subscription_details?.subscription;
 
@@ -146,14 +157,14 @@ export const stripeWebhook = async (req, res, next) => {
         {
           status: "past_due",
         },
-        { where: { stripe_subscription_id: subscriptionId} },
+        { where: { stripe_subscription_id: subscriptionId } },
       );
       break;
     }
 
     case "customer.subscription.deleted": {
       const subscription = event.data.object;
-            const subscriptionId =
+      const subscriptionId =
         subscription.id ??
         subscription.parent?.subscription_details?.subscription;
 
@@ -177,11 +188,11 @@ export const stripeWebhook = async (req, res, next) => {
 export const subscriptionStatus = async (req, res, next) => {
   const subscription = await Subscription.findOne({
     where: { user_id: req.user.user_id, status: "active" },
-    include: [{ model: SubscriptionPlan, as: "plan" }]
+    include: [{ model: SubscriptionPlan, as: "plan" }],
   });
 
   res.status(200).json({
-    status: subscription?.status,
+    subscription: subscription,
     plan: subscription?.plan?.plan_type,
     expires_at: subscription?.current_period_end,
   });
@@ -195,5 +206,31 @@ export const paymentHistory = async (req, res, next) => {
 
   return res.status(200).json({
     payments: allPayments,
+  });
+};
+
+export const cancelSubscription = async (req, res, next) => {
+  const user_id = req.user.user_id;
+
+  const subscription = await Subscription.findOne({
+    where: { user_id: user_id, status: "active" },
+  });
+
+  if (!subscription) {
+    return next(new ExpressError("No active subscription found", 404));
+  }
+
+  const deleteSubscription = stripe.subscriptions.cancel(
+    subscription.stripe_subscription_id,
+  );
+
+  await Subscription.update(
+    { status: "canceled" },
+    { where: { id: subscription.id } },
+  );
+
+  res.status(200).json({
+    message: "Subscription canceled successfully",
+    subscription: deleteSubscription,
   });
 };

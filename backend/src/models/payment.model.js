@@ -39,6 +39,10 @@ class Payment extends Model {}
         type: DataTypes.DATE,
         allowNull: false,
       },
+      invoice_url: {
+  type: DataTypes.STRING,
+  allowNull: true,
+},
     },
     {
       sequelize,

@@ -34,10 +34,10 @@ class Task extends Model {}
         type: DataTypes.TEXT,
       },
       status: {
-        type: DataTypes.ENUM("pending", "In Progress", "compeleted"),
+        type: DataTypes.ENUM("pending", "in_progress", "completed"),
       },
       priority: {
-        type: DataTypes.ENUM("Low", "Medium", "High"),
+        type: DataTypes.ENUM("low", "medium", "high"),
       },
       due_date: {
         type: DataTypes.DATEONLY,

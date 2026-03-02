@@ -8,7 +8,7 @@ export const logActivity = wrapAsync(
         user_id: userId,
         action: action.toUpperCase(),
         entity_type: entityType,
-        entity_id: entityId.toString(),
+        entity_id: entityId?.toString(),
       });
     } catch (e) {
       console.log(e)

@@ -1,4 +1,4 @@
-import { checkSchema, validationResult } from "express-validator";
+import { checkSchema } from "express-validator";
 
 export const createTaskSchema = checkSchema({
   projectId: {
@@ -6,10 +6,9 @@ export const createTaskSchema = checkSchema({
     notEmpty: {
       errorMessage: "Project ID is required",
     },
-    isInt: {
-      errorMessage: "Project ID must be a valid integer",
+    isUUID: {
+      errorMessage: "Project ID must be a valid UUID",
     },
-    toInt: true,
   },
 
   title: {
@@ -37,18 +36,8 @@ export const createTaskSchema = checkSchema({
   assigned_to: {
     in: ["body"],
     optional: true,
-    isInt: {
-      errorMessage: "assigned_to must be a valid user ID",
-    },
-    toInt: true,
-  },
-
-  status: {
-    in: ["body"],
-    optional: true,
-    isIn: {
-      options: [["todo", "in_progress", "completed"]],
-      errorMessage: "Invalid task status",
+    isUUID: {
+      errorMessage: "assigned_to must be a valid UUID",
     },
   },
 
@@ -83,17 +72,15 @@ export const createTaskSchema = checkSchema({
   },
 });
 
-
 export const updateTaskSchema = checkSchema({
   projectId: {
     in: ["params"],
     notEmpty: {
       errorMessage: "Project ID is required",
     },
-    isInt: {
-      errorMessage: "Project ID must be a valid integer",
+    isUUID: {
+      errorMessage: "Project ID must be a valid UUID",
     },
-    toInt: true,
   },
 
   id: {
@@ -101,10 +88,9 @@ export const updateTaskSchema = checkSchema({
     notEmpty: {
       errorMessage: "Task ID is required",
     },
-    isInt: {
-      errorMessage: "Task ID must be a valid integer",
+    isUUID: {
+      errorMessage: "Task ID must be a valid UUID",
     },
-    toInt: true,
   },
 
   title: {
@@ -130,17 +116,16 @@ export const updateTaskSchema = checkSchema({
   assigned_to: {
     in: ["body"],
     optional: true,
-    isInt: {
-      errorMessage: "assigned_to must be a valid user ID",
+    isUUID: {
+      errorMessage: "assigned_to must be a valid UUID",
     },
-    toInt: true,
   },
 
   status: {
     in: ["body"],
     optional: true,
     isIn: {
-      options: [["todo", "in_progress", "completed"]],
+      options: [["pending", "in_progress", "completed"]],
       errorMessage: "Invalid task status",
     },
   },
@@ -188,10 +173,9 @@ export const deleteTaskSchema = checkSchema({
     notEmpty: {
       errorMessage: "Project ID is required",
     },
-    isInt: {
-      errorMessage: "Project ID must be a valid integer",
+    isUUID: {
+      errorMessage: "Project ID must be a valid UUID",
     },
-    toInt: true,
   },
 
   id: {
@@ -199,9 +183,8 @@ export const deleteTaskSchema = checkSchema({
     notEmpty: {
       errorMessage: "Task ID is required",
     },
-    isInt: {
-      errorMessage: "Task ID must be a valid integer",
+    isUUID: {
+      errorMessage: "Task ID must be a valid UUID",
     },
-    toInt: true,
   },
 });

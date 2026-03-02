@@ -4,13 +4,13 @@ import { Payment } from "../models/payment.model.js";
 import { sequelize } from "../config/db.js";
 
 export const getMonthlyRevenu = async (req, res, next) => {
-  const revenu = Payment.findAll({
+  const revenu = await Payment.findAll({
     attributes: [
       [
         sequelize.fn("DATE_TRUNC", "month", sequelize.col("created_at")),
         "month",
       ],
-      [sequelize.fn("SUM", sequelize.col("amount"), "total")],
+      [sequelize.fn("SUM", sequelize.col("amount")), "total"],
     ],
     where: { status: "paid" },
     group: ["month"],
@@ -24,7 +24,7 @@ export const getTaskStatusStats = async (req, res, next) => {
   const status = await Task.findAll({
     attributes: [
       "status",
-      [sequelize.fn("COUNT", sequelize.col("status"), "count")],
+      [sequelize.fn("COUNT", sequelize.col("status")), "count"],
     ],
     group: ["status"],
   });

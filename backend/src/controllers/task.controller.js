@@ -12,8 +12,14 @@ export const createTask = async (req, res, next) => {
     return next(new ExpressError("Project not found", 404));
   }
 
-  const { title, description, assigned_to, status, priority, due_date } =
-    req.body;
+  const {
+    title,
+    description,
+    assigned_to,
+    status = "pending",
+    priority,
+    due_date,
+  } = req.body;
 
   if (!title) {
     return next(new ExpressError("Title is required", 400));
@@ -65,11 +71,9 @@ export const getTasksByProject = async (req, res, next) => {
   const updatedTasks = tasks.map((task) => {
     const isOverDue =
       new Date(task.due_date) < todayDate && task.status !== "compeleted";
+    task.isOverDue = isOverDue;
 
-    return {
-      ...task,
-      isOverDue,
-    };
+    return task;
   });
 
   res.status(200).json({
@@ -163,23 +167,31 @@ export const getFilteredTasks = async (req, res, next) => {
 
   if (startDate && endDate) {
     whereClause.created_at = {
-      [Op.between]: [new Date(startDate), new Date(endDate)],
+      [Op.between]: [new Date(startDate), new Date(endDate).setHours(23 * 59 * 59 * 999)],
     };
   }
 
-  const offset = (page - 1) * 10;
+  const offset = (page - 1) * parseInt(limit);
 
-  const [count, rows] = await Task.findAndCountAll({
+  const {count, rows} = await Task.findAndCountAll({
     where: whereClause,
     offset: offset,
     limit: parseInt(limit),
     order: [["created_at", "DESC"]],
+    include:[
+      {
+        model: Project,
+        as: "project",
+        attributes:["title", "id", "description"]
+      }
+    ],
+    distinct: true,
   });
 
   return res.json({
     total: count,
     tasks: rows,
     currentPage: parseInt(page),
-    totalPages: Math.ceil(count / limit)
+    totalPages: Math.ceil(count / limit),
   });
 };
