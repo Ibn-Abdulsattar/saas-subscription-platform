@@ -275,3 +275,23 @@ We’re excited to have you join our community.
     token,
   });
 };
+
+export const getAllUsers = async(req, res, next)=>{
+  const users = await User.findAll({
+    attributes: ["user_id", "username", "email", "avatar_url", "role", "created_at", "jobTitle"],
+    order: [["created_at", "DESC"]],
+  });
+
+  return res.status(200).json({ users });
+}
+
+export const updateJobTitle = async(req, res, next)=>{
+  const {jobTitle} = req.body;
+  const user = await User.findByPk(req.user.user_id);
+  if(!user){
+    return next(new ExpressError("User not found", 404));
+  }
+
+  user.update({jobTitle});
+  return res.status(200).json({message: "Job title updated successfully", jobTitle});
+}

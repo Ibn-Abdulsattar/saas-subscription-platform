@@ -3,6 +3,7 @@ import { Project } from "../models/project.model.js";
 import ExpressError from "../utils/expressError.js";
 import { logActivity } from "../services/logActivity.js";
 import { Op } from "sequelize";
+import UserChecklistItem from "../models/userChecklist.model.js";
 
 export const createTask = async (req, res, next) => {
   const { projectId } = req.params;
@@ -19,10 +20,13 @@ export const createTask = async (req, res, next) => {
     status = "pending",
     priority,
     due_date,
+    checklist_template,
   } = req.body;
 
-  if (!title) {
-    return next(new ExpressError("Title is required", 400));
+  if (!title || !assigned_to || assigned_to.length === 0) {
+    return next(
+      new ExpressError("Title and Assigned To Users are required", 400),
+    );
   }
 
   if (!priority || !due_date) {
@@ -38,6 +42,23 @@ export const createTask = async (req, res, next) => {
     priority,
     due_date,
   });
+
+  if (assigned_to && assigned_to.length > 0 && checklist_template) {
+    const checklistEntries = [];
+
+    assigned_to.forEach((userId) => {
+      checklist_template.forEach((itemName) => {
+        checklistEntries.push({
+          taskId: task.id,
+          userId: userId,
+          itemName: itemName,
+          isCompleted: false,
+        });
+      });
+    });
+
+    await UserChecklistItem.bulkCreate(checklistEntries);
+  }
 
   await logActivity(req.user.user_id, "Created", "Task", task.id);
 
@@ -167,23 +188,26 @@ export const getFilteredTasks = async (req, res, next) => {
 
   if (startDate && endDate) {
     whereClause.created_at = {
-      [Op.between]: [new Date(startDate), new Date(endDate).setHours(23 * 59 * 59 * 999)],
+      [Op.between]: [
+        new Date(startDate),
+        new Date(endDate).setHours(23 * 59 * 59 * 999),
+      ],
     };
   }
 
   const offset = (page - 1) * parseInt(limit);
 
-  const {count, rows} = await Task.findAndCountAll({
+  const { count, rows } = await Task.findAndCountAll({
     where: whereClause,
     offset: offset,
     limit: parseInt(limit),
     order: [["created_at", "DESC"]],
-    include:[
+    include: [
       {
         model: Project,
         as: "project",
-        attributes:["title", "id", "description"]
-      }
+        attributes: ["title", "id", "description"],
+      },
     ],
     distinct: true,
   });
@@ -194,4 +218,17 @@ export const getFilteredTasks = async (req, res, next) => {
     currentPage: parseInt(page),
     totalPages: Math.ceil(count / limit),
   });
+};
+
+export const toggleChecklistItem = async (req, res) => {
+  const { id: taskId, itemId } = req.params;
+
+  const item = await UserChecklistItem.findOne({
+    where: { id: itemId, userId: req.user.user_id, taskId: taskId },
+  });
+
+  item.isCompleted = !item.isCompleted;
+  await item.save();
+
+  res.status(200).json({ success: true, item });
 };

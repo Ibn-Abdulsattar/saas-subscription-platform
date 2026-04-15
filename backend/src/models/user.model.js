@@ -64,6 +64,10 @@ class User extends Model {
         },
         allowNull: true,
       },
+      jobTitle: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       token: {
         type: DataTypes.STRING,
         allowNull: true,

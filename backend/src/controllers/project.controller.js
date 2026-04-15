@@ -6,14 +6,14 @@ import { logActivity } from "../services/logActivity.js";
 import { Team } from "../models/team.model.js";
 
 export const createProject = async (req, res, next) => {
-  const { title, description } = req.body;
+  const { title, description, deadLine } = req.body;
 
   let pdf = null;
 
   const file = req.file;
 
-  if (!title || !description) {
-    return next(new ExpressError(" title, and description are required", 400));
+  if (!title || !description || !deadLine) {
+    return next(new ExpressError(" title, description and deadLine are required", 400));
   }
 
   if (file) {
@@ -32,6 +32,7 @@ export const createProject = async (req, res, next) => {
     description,
     pdf,
     user_id: req.user.user_id,
+    deadLine,
   });
 
   await logActivity(req.user.user_id, "Created", "Project", project.id);

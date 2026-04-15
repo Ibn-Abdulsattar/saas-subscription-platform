@@ -20,12 +20,9 @@ class Task extends Model {}
         onDelete: "CASCADE",
       },
       assigned_to: {
-        type: DataTypes.UUID,
-        references: {
-          model: "users",
-          key: "user_id",
-        },
+        type: DataTypes.JSONB,
         allowNull: true,
+        defaultValue: [],
       },
       title: {
         type: DataTypes.STRING(200),
@@ -58,14 +55,14 @@ class Task extends Model {}
           fields: ["status"],
           name: "idx_tasks_status",
         },
-                {
+        {
           fields: ["priority"],
           name: "idx_tasks_priority",
         },
         {
           fields: ["created_at"],
-          name: "idx_task_created_at"
-        }
+          name: "idx_task_created_at",
+        },
       ],
     },
   );

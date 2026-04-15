@@ -8,6 +8,8 @@ import {
   resetPassword,
   google,
   changePassword,
+  getAllUsers,
+  updateJobTitle,
 } from "../controllers/auth.controller.js";
 import {
   forgotSchema,
@@ -35,5 +37,8 @@ router
   .route("/change-password")
   .post(auth(["user", "admin", "manager"]), wrapAsync(changePassword));
 router.post("/google", wrapAsync(google));
-
+router.route("/all-users").get(auth(["user"]), wrapAsync(getAllUsers));
+router
+  .route("/update-job-title")
+  .post(auth(["user"]), wrapAsync(updateJobTitle));
 export default router;
