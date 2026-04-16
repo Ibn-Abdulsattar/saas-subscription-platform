@@ -8,10 +8,10 @@ import searchRoutes from "./routes/search.routes.js";
 import planRoutes from "./routes/plan.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
-import activityRoutes from "./routes/activity.routes.js"
-import dashboardRoutes from "./routes/dashboard.routes.js"
-import graphicalChartRoutes from "./routes/graphicalChart.routes.js"
-import teamRoutes from "./routes/team.routes.js"
+import activityRoutes from "./routes/activity.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
+import graphicalChartRoutes from "./routes/graphicalChart.routes.js";
+import teamRoutes from "./routes/team.routes.js";
 import { stripeWebhook } from "./controllers/payment.controller.js";
 import { User } from "./models/user.model.js";
 import { Payment } from "./models/payment.model.js";
@@ -21,17 +21,18 @@ import wrapAsync from "./utils/wrapAsync.js";
 import { Project } from "./models/project.model.js";
 import { Task } from "./models/task.model.js";
 import { Activity } from "./models/activity.model.js";
-import {v2 as cloudinary} from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import { Team } from "./models/team.model.js";
+import { TeamMembers } from "./models/teamMembers.model.js";
 dotenv.config();
 const app = express();
 app.set("PORT", process.env.PORT || 5000);
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true 
+  secure: true,
 });
 
 app.use(cors({ origin: [process.env.FRONTEND_URL], credentials: true }));
@@ -80,12 +81,32 @@ Project.hasMany(Task, {
 Task.belongsTo(Project, { foreignKey: "project_id", as: "project" });
 User.hasMany(Activity, { foreignKey: "user_id", as: "activities" });
 Activity.belongsTo(User, { foreignKey: "user_id", as: "user" });
-Team.belongsToMany(User, {through: "team_members", foreignKey: "teamId", as: "users"});
-User.belongsToMany(Team, {through: "team_members", foreignKey: "userId", as: "teams"});
-Team.hasMany(Project, {foreignKey: "teamId", as: "projects"});
-Project.belongsTo(Team, {foreignKey: "teamId", as: "team"});
-
-
+Team.belongsToMany(User, {
+  through: "team_members",
+  foreignKey: "teamId",
+  as: "users",
+});
+User.belongsToMany(Team, {
+  through: "team_members",
+  foreignKey: "userId",
+  as: "teams",
+});
+TeamMembers.belongsTo(User, { foreignKey: "userId", as: "user" });
+TeamMembers.belongsTo(Team, { foreignKey: "teamId", as: "team" });
+Team.hasMany(Project, { foreignKey: "teamId", as: "projects" });
+Project.belongsTo(Team, { foreignKey: "teamId", as: "team" });
+// Task.belongsToMany(User, {
+//   through: "task_assignments",
+//   foreignKey: "taskId",
+//   otherKey: "userId",
+//   as: "assignedUsers",
+// });
+// User.belongsToMany(Task, {
+//   through: "task_assignments",
+//   foreignKey: "userId",
+//   otherKey: "taskId",
+//   as: "assignedTasks",
+// });
 
 app.use((error, req, res, next) => {
   console.error(error);

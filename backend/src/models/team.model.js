@@ -15,7 +15,7 @@ Team.init(
       allowNull: false,
       unique: true,
     },
-    department: {
+    description: {
       type: DataTypes.STRING,
       allowNull: true,
     },

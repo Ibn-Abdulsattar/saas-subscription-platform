@@ -5,13 +5,9 @@ class TeamMembers extends Model {}
 
 TeamMembers.init(
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
     userId: {
       type: DataTypes.UUID,
+      primaryKey: true,
       references: {
         model: "users",
         key: "user_id",
@@ -19,14 +15,11 @@ TeamMembers.init(
     },
     teamId: {
       type: DataTypes.UUID,
+      primaryKey: true,
       references: {
         model: "teams",
         key: "id",
       },
-    },
-    role: {
-      type: DataTypes.ENUM("Leader", "Member"),
-      defaultValue: "Member",
     },
   },
   {

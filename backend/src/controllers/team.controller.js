@@ -1,15 +1,16 @@
 import { Team } from "../models/team.model.js";
 import { TeamMembers } from "../models/teamMembers.model.js";
+import { User } from "../models/user.model.js";
 import ExpressError from "../utils/expressError.js";
 
 export const createTeam = async (req, res, next) => {
-  const { name, department } = req.body;
+  const { name, description } = req.body;
 
-  if (!name || !department) {
-    return next(new ExpressError("Name and Department are required", 400));
+  if (!name || !description) {
+    return next(new ExpressError("Name and Description are required", 400));
   }
 
-  const team = await Team.create({ name, department });
+  const team = await Team.create({ name, description });
 
   return res
     .status(201)
@@ -31,7 +32,7 @@ export const addMembersToTeam = async (req, res, next) => {
   if (!team) {
     return next(new ExpressError("Team not found!", 404));
   }
-
+console.log("userIsds", userIds);
   await TeamMembers.bulkCreate(
     userIds.map((userId) => ({
       teamId,
@@ -56,10 +57,23 @@ export const getAllMembersOfTeam = async (req, res, next) => {
   const members = await TeamMembers.findAll({
     where: { teamId },
     include: {
-      model: "users",
-      attributes: ["user_id", "name", "email"],
-      as: "users",
+      model: User,
+      attributes: ["user_id", "username", "email", "role", "jobTitle"],
+      as: "user",
     },
   });
+  console.log(members);
   res.status(200).json({ members: members });
 };
+
+export const getAllTeams = async(req, res, next)=>{
+  const teams = await Team.findAll({
+    include:[
+      {
+        model: User,
+        as: "users", attributes: ["user_id", "username", "email"]} 
+    ]
+  })
+
+  return res.status(200).json({teams});
+}

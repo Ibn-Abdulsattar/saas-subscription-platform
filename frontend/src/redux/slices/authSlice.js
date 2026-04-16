@@ -28,7 +28,6 @@ export const allUsers = createAsyncThunk(
       const response = await axios.get(`${API_URL}/auth/all-users`, {
         withCredentials: true,
       });
-      console.log("All users response", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(

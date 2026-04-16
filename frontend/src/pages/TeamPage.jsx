@@ -4,6 +4,7 @@ import {
   createTeam,
   addMembersToTeam,
   fetchTeamMembers,
+  getAllTeams,
 } from "../redux/slices/teamSlice";
 import { allUsers } from "../redux/slices/authSlice";
 import {
@@ -174,8 +175,8 @@ export default function TeamPage() {
 
   useEffect(() => {
     if (manage) dispatch(allUsers());
+    dispatch(getAllTeams());
   }, [dispatch, manage]);
-
   const handleCreate = async () => {
     if (!newTeam.name.trim()) return toast.error("Team name is required");
     try {
@@ -222,7 +223,7 @@ export default function TeamPage() {
 
   const filteredUsers = (users || []).filter(
     (u) =>
-      u.name?.toLowerCase().includes(searchUser.toLowerCase()) ||
+      u.username?.toLowerCase().includes(searchUser.toLowerCase()) ||
       u.email?.toLowerCase().includes(searchUser.toLowerCase()),
   );
 
@@ -369,7 +370,7 @@ export default function TeamPage() {
             onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
           />
           <TextField
-            label="Description (optional)"
+            label="Description"
             fullWidth
             multiline
             rows={3}
@@ -484,7 +485,7 @@ export default function TeamPage() {
                         color: "#0f172a",
                       }}
                     >
-                      {u.name}
+                      {u.username}
                     </div>
                     <div style={{ fontSize: "0.78rem", color: "#64748b" }}>
                       {u.email}
@@ -590,9 +591,9 @@ export default function TeamPage() {
             </p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column" }}>
-              {currentTeamMembers.map((m) => (
+              {currentTeamMembers.map((m, idx) => (
                 <div
-                  key={m.user_id || m.id}
+                  key={idx}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -606,10 +607,10 @@ export default function TeamPage() {
                       width: 36,
                       height: 36,
                       fontSize: 14,
-                      bgcolor: avatarColor(m.name || ""),
+                      bgcolor: avatarColor(m.user.username || ""),
                     }}
                   >
-                    {(m.name || m.email || "U")[0].toUpperCase()}
+                    {(m.user.username || m.user.email || "U")[0].toUpperCase()}
                   </Avatar>
                   <div>
                     <div
@@ -619,14 +620,14 @@ export default function TeamPage() {
                         color: "#0f172a",
                       }}
                     >
-                      {m.name}
+                      {m.user.username}
                     </div>
                     <div style={{ fontSize: "0.78rem", color: "#64748b" }}>
-                      {m.email}
+                      {m.user.email}
                     </div>
                   </div>
                   <Chip
-                    label={m.role || "user"}
+                    label={m.user.jobTitle || "user"}
                     size="small"
                     sx={{ ml: "auto" }}
                   />

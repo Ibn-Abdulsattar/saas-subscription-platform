@@ -47,6 +47,20 @@ export const fetchTeamMembers = createAsyncThunk(
   },
 );
 
+export const getAllTeams = createAsyncThunk(
+  "team/fetchAllTeams",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/all-teams`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  },
+);
+
 const teamSlice = createSlice({
   name: "team",
   initialState: {
@@ -84,6 +98,9 @@ const teamSlice = createSlice({
       // Add Members
       .addCase(addMembersToTeam.fulfilled, (state) => {
         state.success = true;
+      })
+      .addCase(getAllTeams.fulfilled, (state, action) => {
+        state.teams = action.payload.teams;
       });
   },
 });

@@ -4,6 +4,7 @@ import ExpressError from "../utils/expressError.js";
 import { logActivity } from "../services/logActivity.js";
 import { Op } from "sequelize";
 import UserChecklistItem from "../models/userChecklist.model.js";
+import { User } from "../models/user.model.js";
 
 export const createTask = async (req, res, next) => {
   const { projectId } = req.params;
@@ -69,37 +70,87 @@ export const createTask = async (req, res, next) => {
   });
 };
 
+// export const getTasksByProject = async (req, res, next) => {
+//   const { projectId } = req.params;
+//   const { status, priority } = req.query;
+
+//   const project = await Project.findByPk(projectId);
+//   if (!project) {
+//     return next(new ExpressError("Project not found", 404));
+//   }
+
+//   const where = { project_id: projectId };
+//   if (status) where.status = status;
+//   if (priority) where.priority = priority;
+
+//   const { count, rows: tasks } = await Task.findAndCountAll({
+//     where,
+//     order: [["created_at", "DESC"]],
+//   });
+
+//   const todayDate = new Date();
+
+//   const updatedTasks = tasks.map((task) => {
+//     const isOverDue =
+//       new Date(task.due_date) < todayDate && task.status !== "compeleted";
+//     task.isOverDue = isOverDue;
+
+//     return task;
+//   });
+
+//   res.status(200).json({
+//     success: true,
+//     total: count,
+//     data: updatedTasks,
+//   });
+// };
+
 export const getTasksByProject = async (req, res, next) => {
   const { projectId } = req.params;
   const { status, priority } = req.query;
 
   const project = await Project.findByPk(projectId);
-  if (!project) {
-    return next(new ExpressError("Project not found", 404));
-  }
+  if (!project) return next(new ExpressError("Project not found", 404));
 
   const where = { project_id: projectId };
   if (status) where.status = status;
   if (priority) where.priority = priority;
 
-  const { count, rows: tasks } = await Task.findAndCountAll({
+  const tasks = await Task.findAll({
     where,
     order: [["created_at", "DESC"]],
   });
 
+  const allUserIds = [...new Set(tasks.flatMap((t) => t.assigned_to || []))];
+
+  const users = await User.findAll({
+    where: { user_id: allUserIds },
+    attributes: ["user_id", "username", "email", "jobTitle"],
+  });
+
+  const userMap = users.reduce((acc, user) => {
+    acc[user.user_id] = user;
+    return acc;
+  }, {});
+
   const todayDate = new Date();
 
   const updatedTasks = tasks.map((task) => {
-    const isOverDue =
-      new Date(task.due_date) < todayDate && task.status !== "compeleted";
-    task.isOverDue = isOverDue;
+    const taskJson = task.toJSON();
 
-    return task;
+    taskJson.assigned_users = (taskJson.assigned_to || [])
+      .map((id) => userMap[id])
+      .filter(Boolean);
+
+    taskJson.isOverDue =
+      new Date(task.due_date) < todayDate && task.status !== "completed";
+
+    return taskJson;
   });
 
   res.status(200).json({
     success: true,
-    total: count,
+    total: updatedTasks.length,
     data: updatedTasks,
   });
 };
@@ -195,9 +246,9 @@ export const getFilteredTasks = async (req, res, next) => {
     };
   }
 
-  whereClause.assigned_to= {
-    [Op.contains]: [req.user.user_id] 
-  }
+  whereClause.assigned_to = {
+    [Op.contains]: [req.user.user_id],
+  };
 
   const offset = (page - 1) * parseInt(limit);
 
