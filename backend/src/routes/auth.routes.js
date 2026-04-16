@@ -37,7 +37,7 @@ router
   .route("/change-password")
   .post(auth(["user", "admin", "manager"]), wrapAsync(changePassword));
 router.post("/google", wrapAsync(google));
-router.route("/all-users").get(auth(["user"]), wrapAsync(getAllUsers));
+router.route("/all-users").get(auth(["admin", "manager"]), wrapAsync(getAllUsers));
 router
   .route("/update-job-title")
   .post(auth(["user"]), wrapAsync(updateJobTitle));

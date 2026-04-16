@@ -14,6 +14,7 @@ import TasksPage from '../pages/TasksPage';
 import BillingPage from '../pages/BillingPage';
 import ProfilePage from '../pages/ProfilePage';
 import SearchPage from '../pages/SearchPage';
+import TeamPage from '../pages/TeamPage';
 
 const AppRoutes = () => {
   const { isAuthenticated } = useSelector(state => state.auth);
@@ -45,6 +46,7 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="projects/:id" element={<ProjectDetailPage />} />
+        <Route path="team" element={<TeamPage />} />
         <Route path="tasks" element={<TasksPage />} />
         <Route path="billing" element={<BillingPage />} />
         <Route path="profile" element={<ProfilePage />} />

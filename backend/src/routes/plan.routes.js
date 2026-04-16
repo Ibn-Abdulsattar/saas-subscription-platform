@@ -11,7 +11,7 @@ const router = Router();
 
 router
   .route("/plans")
-  .post( auth(["user"]), addSubscriptionPlanSchema, validateRequest("Plan"), wrapAsync(addSubscriptionPlan))
-  .get( auth(["user"]), wrapAsync(allSubscriptionPlans));
+  .post( auth(["user", "manager", "admin"]), addSubscriptionPlanSchema, validateRequest("Plan"), wrapAsync(addSubscriptionPlan))
+  .get( auth(["user", "manager", "admin"]), wrapAsync(allSubscriptionPlans));
 
   export default router;

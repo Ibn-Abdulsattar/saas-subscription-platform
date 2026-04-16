@@ -24,7 +24,6 @@ const auth = (allowRoles) => (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = decoded.payload;
-
     if (!allowRoles.includes(user.role)) {
       return next(new ExpressError("Access denied: Insufficient Permissions", 403));
     }

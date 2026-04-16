@@ -21,23 +21,23 @@ const router = Router({ mergeParams: true });
 router
   .route("/")
   .post(
-    auth(["user"]),
+    auth(["admin", "manager"]),
     createTaskSchema,
     validateRequest("Task"),
     wrapAsync(createTask),
   )
-  .get(wrapAsync(getTasksByProject));
+  .get(auth(["admin", "manager"]), wrapAsync(getTasksByProject));
 router
   .route("/:id")
-  .get(auth(["user"]), wrapAsync(getTaskById))
+  .get(auth(["admin", "manager"]), wrapAsync(getTaskById))
   .put(
-    auth(["user"]),
+    auth(["admin", "manager"]),
     updateTaskSchema,
     validateRequest("Task"),
     wrapAsync(updateTask),
   )
   .delete(
-    auth(["user"]),
+    auth(["admin", "manager"]),
     deleteTaskSchema,
     validateRequest("Task"),
     wrapAsync(deleteTask),

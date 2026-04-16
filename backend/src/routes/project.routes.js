@@ -25,30 +25,30 @@ router.use("/:projectId/tasks", taskRoutes);
 router
   .route("/")
   .post(
-    auth(["user"]),
+    auth(["admin"]),
     upload.single("media"),
     createProjectSchema,
     validateRequest("Project"),
     wrapAsync(createProject),
   )
-  .get(auth(["user"]), wrapAsync(getAllProjects));
+  .get(auth(["admin"]), wrapAsync(getAllProjects));
 router
   .route("/:id")
-  .get(auth(["user"]), wrapAsync(getProjectById))
+  .get(auth(["admin"]), wrapAsync(getProjectById))
   .put(
-    auth(["user"]),
+    auth(["admin"]),
     updateProjectSchema,
     validateRequest("Project"),
     wrapAsync(updateProject),
   )
   .delete(
-    auth(["user"]),
+    auth(["admin"]),
     deleteProjectSchema,
     validateRequest("Project"),
     wrapAsync(deleteProject),
   );
 router
   .route("/:id/assign-team")
-  .post(auth(["user"]), wrapAsync(assignProjectToTeam));
+  .post(auth(["admin", "manager"]), wrapAsync(assignProjectToTeam));
 
 export default router;

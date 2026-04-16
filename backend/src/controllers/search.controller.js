@@ -17,6 +17,7 @@ export const globalSearch = async (req, res, next) => {
   const [users, projects, tasks, payments] = await Promise.all([
     User.findAll({
       where: {
+        user_id: req.user.user_id,
         [Op.or]: [{ username: searchCondition }, { email: searchCondition }],
       },
       limit: 10,
@@ -24,6 +25,7 @@ export const globalSearch = async (req, res, next) => {
 
     Project.findAll({
       where: {
+        user_id: req.user.user_id,
         [Op.or]: [{ title: searchCondition }, { description: searchCondition }],
       },
       limit: 10,
@@ -31,6 +33,7 @@ export const globalSearch = async (req, res, next) => {
 
     Task.findAll({
       where: {
+        assigned_to: {[Op.contains]: [req.user.user_id]},
         [Op.or]: [{ title: searchCondition }, { description: searchCondition }],
       },
       limit: 10,
@@ -38,6 +41,7 @@ export const globalSearch = async (req, res, next) => {
 
     Payment.findAll({
       where: {
+        user_id: req.user.user_id,
         stripe_invoice_id: searchCondition,
       },
       limit: 10,

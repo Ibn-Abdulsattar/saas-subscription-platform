@@ -45,10 +45,7 @@ export const createProject = async (req, res, next) => {
 };
 
 export const getAllProjects = async (req, res, next) => {
-  const { user } = req;
-
   const { count, rows: projects } = await Project.findAndCountAll({
-    where: { user_id: user.user_id },
     include: [{ model: Task, as: "tasks" }],
     order: [["created_at", "DESC"]],
   });

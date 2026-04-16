@@ -8,10 +8,10 @@ import {
 } from "../controllers/team.controller.js";
 const router = Router();
 
-router.route("/").post(auth(["user"]), wrapAsync(createTeam));
+router.route("/").post(auth(["manager", "admin"]), wrapAsync(createTeam));
 router
   .route("/:teamId/members")
-  .post(auth(["user"]), wrapAsync(addMembersToTeam))
+  .post(auth(["manager", "admin"]), wrapAsync(addMembersToTeam))
   .get(auth(["user"]), wrapAsync(getAllMembersOfTeam));
 
 export default router;

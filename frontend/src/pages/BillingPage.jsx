@@ -48,8 +48,6 @@ const BillingPage = () => {
         axios.get(`${API_URL}/billing/history`, { withCredentials: true }),
       ]);
 
-      console.log(plansRes, subscriptionRes, historyRes);
-
       setPlans(plansRes.data.allPlans);
       setCurrentSubscription(subscriptionRes.data.subscription);
       setPaymentHistory(historyRes.data.payments);

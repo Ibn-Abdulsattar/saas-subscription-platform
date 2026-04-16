@@ -9,9 +9,9 @@ const router = Router();
 
 router
   .route("/me")
-  .get(auth(["user"]), wrapAsync(profile))
+  .get(auth(["user", "manager", "admin"]), wrapAsync(profile))
   .put(
-    auth(["user"]),
+    auth(["user", "manager", "admin"]),
     upload.single("media"),
     updateProfileSchema,
     validateRequest("Profile"),

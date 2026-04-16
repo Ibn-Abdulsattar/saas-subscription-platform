@@ -11,7 +11,7 @@ const RegisterPage = () => {
   const { isLoading, error, isAuthenticated } = useSelector(state => state.auth);
 
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -72,15 +72,15 @@ const RegisterPage = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                User Name
               </label>
               <input
-                id="name"
-                name="name"
+                id="username"
+                name="username"
                 type="text"
                 required
-                value={formData.name}
+                value={formData.username}
                 onChange={handleChange}
                 className="input-field mt-1"
                 placeholder="Enter your full name"

@@ -7,6 +7,7 @@ import TaskIcon from '@mui/icons-material/Task';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
+import GroupIcon from '@mui/icons-material/Group';
 
 const Sidebar = () => {
   const { sidebarOpen } = useSelector(state => state.ui);
@@ -15,6 +16,7 @@ const Sidebar = () => {
     { path: '/dashboard', icon: DashboardIcon, label: 'Dashboard' },
     { path: '/projects', icon: FolderIcon, label: 'Projects' },
     { path: '/tasks', icon: TaskIcon, label: 'Tasks' },
+    { path: '/team', icon: GroupIcon, label: 'Team' },
     { path: '/billing', icon: PaymentIcon, label: 'Billing' },
     { path: '/profile', icon: PersonIcon, label: 'Profile' },
     { path: '/search', icon: SearchIcon, label: 'Search' },

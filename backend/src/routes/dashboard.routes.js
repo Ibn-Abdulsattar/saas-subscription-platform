@@ -5,7 +5,7 @@ import auth from "../middlewares/auth.js";
 const router = Router();
 
 
-router.route("/stats").get( auth(["user"]), wrapAsync(getSummaryStats));
+router.route("/stats").get( auth(["user", "manager", "admin"]), wrapAsync(getSummaryStats));
 
 export default router;
 

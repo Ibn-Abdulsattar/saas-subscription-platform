@@ -11,19 +11,19 @@ import { stripeCheckoutSessionSchema } from "../validator/payment.validator.js";
 import { validateRequest } from "../middlewares/validationRequest.js";
 const router = Router();
 
-router.route("/history").get(auth(["user"]), wrapAsync(paymentHistory));
+router.route("/history").get(auth(["user", "manager", "admin"]), wrapAsync(paymentHistory));
 router
   .route("/subscription")
-  .get(auth(["user"]), wrapAsync(subscriptionStatus));
+  .get(auth(["user", "manager", "admin"]), wrapAsync(subscriptionStatus));
 router
   .route("/checkout")
   .post(
-    auth(["user"]),
+    auth(["user", "manager", "admin"]),
     stripeCheckoutSessionSchema,
     validateRequest("Payment"),
     wrapAsync(stripeCheckoutSession),
   );
 
-  router.post("/cancel-subscription", auth(["user"]), wrapAsync(cancelSubscription));
+  router.post("/cancel-subscription", auth(["user", "manager", "admin"]), wrapAsync(cancelSubscription));
 
 export default router;

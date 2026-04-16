@@ -195,6 +195,10 @@ export const getFilteredTasks = async (req, res, next) => {
     };
   }
 
+  whereClause.assigned_to= {
+    [Op.contains]: [req.user.user_id] 
+  }
+
   const offset = (page - 1) * parseInt(limit);
 
   const { count, rows } = await Task.findAndCountAll({

@@ -8,8 +8,8 @@ import {
 import auth from "../middlewares/auth.js";
 const router = Router();
 
-router.route("/revenue").get( auth(["user"]), wrapAsync(getMonthlyRevenu));
-router.route("/task").get( auth(["user"]), wrapAsync(getTaskStatusStats));
-router.route("/growth").get( auth(["user"]), wrapAsync(getUserGrowth));
+router.route("/revenue").get( auth(["user", "manager", "admin"]), wrapAsync(getMonthlyRevenu));
+router.route("/task").get( auth(["user", "manager", "admin"]), wrapAsync(getTaskStatusStats));
+router.route("/growth").get( auth(["user", "manager", "admin"]), wrapAsync(getUserGrowth));
 
 export default router;
